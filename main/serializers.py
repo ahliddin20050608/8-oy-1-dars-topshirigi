@@ -5,7 +5,7 @@ class EmailSerializer(serializers.Serializer):
     
     def validate_email(self, attrs):
         email = attrs.lower().strip()
-        if not email.endswith("@gmail.com", "@yahoo.com"):
+        if not email.endswith("@gmail.com"):
             raise serializers.ValidationError("Domenda xatolik bor!")
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError("Bu email allaqachon ro'yxatdan o'tgan")
