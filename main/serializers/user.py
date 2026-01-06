@@ -1,5 +1,9 @@
 from rest_framework import serializers
-from main.models import User, NEW
+from main.models import User, NEW, DONE
+from main.utils import is_email, is_phone
+
+
+
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     
@@ -22,19 +26,56 @@ class CodeSerializer(serializers.Serializer):
             raise serializers.ValidationError('Code 6 xonali bolishi kerak')
         return attrs
     
-class UserSerializer(serializers.Serializer):
-    first_name = serializers.CharField(max_length=100)
+class SigUpSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100, required=True)
+    phone = serializers.CharField(max_length=30, required=True)
+    first_name = serializers.CharField(max_length=100, required=True)
     last_name = serializers.CharField(max_length=100)
-    password1 = serializers.CharField(max_length=40)
-    password2 = serializers.CharField(max_length=40)
-    username = serializers.CharField(max_length=100)
-    phone = serializers.CharField(max_length=30)
+    password = serializers.CharField(max_length=40, required=True)
+    confirm_password = serializers.CharField(max_length=40, required=True)
     
-    def validate_password(self, attrs):
-        password1 = self.get('password1')
-        password2 = self.get('password2')
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already in used.")
+        return value
+    
+    def validate_phone(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Phone number already in used.")
+        return value
+    
+    def validate(self, validated_data):
+        password = validated_data.get("password")
+        confirm_password = validated_data.get("confirm_password")
+        
+        if password != confirm_password:
+            return serializers.ValidationError("Parollar mos emas!")
+        return validated_data
+    
+class LoginSerializer(serializers.Serializer):
+    user_input = serializers.CharField(max_length=100, required=True)
+    password = serializers.CharField(max_length=100, required=True)
+    
+    def validate(self, validate_data):
+        user_input = validate_data.get("user_input")
+        password = validate_data.get("password")
 
-        if password1!=password2:
-            raise serializers.ValidationError("Parollar mos emas!")
-    
-        return super().validate(attrs)
+        if is_email(user_input):
+            user = User.objects.filter(email=user_input, status=DONE).first()
+            if user is None:
+                raise serializers.ValidationError("User not found.")
+        
+        elif is_phone(user_input):
+            user = User.objects.filter(phone=user_input, status=DONE).first()
+            if user is None:
+                raise serializers.ValidationError("User not found.")
+
+        else:
+            user = User.objects.filter(username=user_input, status=DONE).first()
+            if user is None:
+                raise serializers.ValidationError("User not found.")
+        if not user.check_password(password):
+            raise serializers.ValidationError("Password is incorrect.")
+        validate_data['username'] = user.username
+
+        return validate_data

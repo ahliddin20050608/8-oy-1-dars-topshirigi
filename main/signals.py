@@ -2,22 +2,23 @@ import random
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from main.models import UserConfirmation  
+from main.utils import generate_pin
+
+import random
 
 
 @receiver(post_save, sender='main.User')
 def create_user_confirmation(sender, instance, created, **kwargs):
     if created:
-        from .models import UserConfirmation  
-        code = ''.join(random.choices('0123456789', k=6))
+        code = generate_pin()
         UserConfirmation.objects.create(
             user=instance,
             code=code
         )
-        print(f"Yangi user uchun tasdiqlash kodi yaratildi: {code}")
 
 
 @receiver(post_save, sender='main.Post')
 def update_post_stats(sender, instance, created, **kwargs):
-    """Post yaratilganda yoki yangilanganda statistikani yangilash"""
     if created:
         print(f"Yangi post yaratildi: {instance.id}")

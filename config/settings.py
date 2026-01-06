@@ -113,7 +113,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER ='akbaraliyevahliddin241@gmail.com'
-EMAIL_HOST_PASSWORD = 'zzlk ynsk tcml ffua'
+EMAIL_HOST_PASSWORD = 'elcq lumy jiyt mjvv'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
@@ -135,6 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
