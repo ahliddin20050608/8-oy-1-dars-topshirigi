@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from main.models import User, NEW, DONE
 from main.utils import is_email, is_phone
-
+import re
 
 
 class EmailSerializer(serializers.Serializer):
@@ -37,11 +37,28 @@ class SigUpSerializer(serializers.Serializer):
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Username already in used.")
+        
+        if not re.match(r'^[a-zA-Z0-9_]+$', value):
+            raise serializers.ValidationError("Username must only letters, numbers and belgilar.")
+        if not len(value)>3:
+            raise serializers.ValidationError("Username very short")
+            
         return value
     
     def validate_phone(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Phone number already in used.")
+        if not is_phone(value):
+            raise serializers.ValidationError("Phone number is invalid.")
+        return value
+    def validate_first_name(self, value):
+        if value and not value.isalpha():
+            raise serializers.ValidationError("First name should contain only letters.")
+        return value
+    
+    def validate_last_name(self, value):
+        if value and not value.isalpha():
+            raise serializers.ValidationError("Last name should contain only letters.")
         return value
     
     def validate(self, validated_data):
