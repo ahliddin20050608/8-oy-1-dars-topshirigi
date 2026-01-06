@@ -2,14 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
+from main.utils import generate_pin
 import uuid
 import random  
 
 NEW, VERIFIED, DONE = "new", "verified", "done"
 
-
-def generate_pin(length=6):
-    return ''.join(random.choices('0123456789', k=length))
 
 
 class User(AbstractUser):
