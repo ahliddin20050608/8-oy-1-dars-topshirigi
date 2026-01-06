@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from main.models import User, NEW
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     
@@ -7,7 +7,8 @@ class EmailSerializer(serializers.Serializer):
         email = attrs.lower().strip()
         if not email.endswith("@gmail.com"):
             raise serializers.ValidationError("Domenda xatolik bor!")
-        if User.objects.filter(email=email).exists():
+        user =  User.objects.filter(email=email).first()
+        if user  and user.status!=NEW :
             raise serializers.ValidationError("Bu email allaqachon ro'yxatdan o'tgan")
         return email
 class CodeSerializer(serializers.Serializer):
@@ -21,3 +22,19 @@ class CodeSerializer(serializers.Serializer):
             raise serializers.ValidationError('Code 6 xonali bolishi kerak')
         return attrs
     
+class UserSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=100)
+    last_name = serializers.CharField(max_length=100)
+    password1 = serializers.CharField(max_length=40)
+    password2 = serializers.CharField(max_length=40)
+    username = serializers.CharField(max_length=100)
+    phone = serializers.CharField(max_length=30)
+    
+    def validate_password(self, attrs):
+        password1 = self.get('password1')
+        password2 = self.get('password2')
+
+        if password1!=password2:
+            raise serializers.ValidationError("Parollar mos emas!")
+    
+        return super().validate(attrs)

@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .utils import send_code
-from .serializers import EmailSerializer, CodeSerializer
-from .models import User, UserConfirmation, VERIFIED, NEW
+from main.utils import send_code
+from main.serializers import EmailSerializer, CodeSerializer, UserSerializer
+from main.models import User, UserConfirmation, VERIFIED, NEW
 from rest_framework import status
 
 
@@ -22,10 +22,11 @@ class SendCodeAPIView(APIView):
         )
 
         UserConfirmation.objects.filter(user=user).delete()
-
+        code = user.create_code()
+        send_code(email, code)
         confirmation = UserConfirmation.objects.create(
-            user=user,
-            code=send_code(email=email)
+            user=user
+            
         )
 
         return Response({
@@ -97,3 +98,14 @@ class ResendCodeAPIView(APIView):
             code = user.create_code()
             send_code(user.email, code)
             return True
+        
+class UserAPIView(APIView):
+    
+    def post(self, request, pk):
+        user = request.user
+        serializer = UserSerializer(user,data=request.data)    
+        serializer.is_valid(raise_exception=True)
+        username = serializer.get("username")
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
