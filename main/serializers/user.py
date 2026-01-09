@@ -3,7 +3,11 @@ from main.models import User, NEW, DONE
 from main.utils import is_email, is_phone
 import re
 
-
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username","email","phone", "first_name", "last_name"]
+        
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     

@@ -15,7 +15,7 @@ class Post(models.Model):
 
 class Media(models.Model):
     file = models.FileField(upload_to='post_media/') 
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='media')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='medias')
 
     def __str__(self):
         return f"Media for Post {self.post.id}"

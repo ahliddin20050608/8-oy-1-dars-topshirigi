@@ -5,6 +5,9 @@ from config.settings import DEFAULT_FROM_EMAIL
 import random
 import string
 import re
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 def send_code(email:str, code:str):         
     text = f"Sizni TwitterAPI ga ro'yxatdan o`tishingiz uchun tasdiqlash kodingiz: {code}"
